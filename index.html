@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="PulseHook helps product teams detect failed webhooks, contract drift and latency regressions before customers notice."
+    />
+    <meta name="theme-color" content="#07110f" />
+    <title>PulseHook — Webhook reliability without the guesswork</title>
+    <style>
+      :root {
+        --bg: #07110f;
+        --surface: #0d1b17;
+        --surface2: #11241e;
+        --ink: #ecf8f3;
+        --muted: #91a69e;
+        --line: rgba(211, 255, 236, 0.11);
+        --accent: #62f6b2;
+        --warn: #ffc966;
+        --red: #ff827d;
+        --blue: #83baff;
+        --shell: min(1160px, calc(100% - 36px));
+        --shadow: 0 30px 90px rgba(0, 0, 0, 0.38);
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        line-height: 1.55;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input, select, textarea { font: inherit; }
+      .shell { width: var(--shell); margin: auto; }
+      .eyebrow { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #9ab1a8; }
+      .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px rgba(98,246,178,.08); margin-right: 8px; }
+      .btn { min-height: 46px; padding: 0 18px; border-radius: 11px; border: 1px solid transparent; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 750; font-size: 14px; cursor: pointer; transition: .2s ease; }
+      .btn:hover { transform: translateY(-1px); }
+      .primary { background: var(--accent); color: #062018; box-shadow: 0 12px 35px rgba(98,246,178,.15); }
+      .secondary { background: rgba(255,255,255,.035); border-color: rgba(255,255,255,.12); color: #d8e9e2; }
+      .small { min-height: 38px; padding: 0 14px; }
+      .site-header { position: sticky; top: 0; z-index: 50; background: rgba(7,17,15,.84); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(255,255,255,.06); }
+      .nav { height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+      .brand { display: flex; align-items: center; gap: 9px; font-size: 20px; font-weight: 800; letter-spacing: -.04em; }
+      .mark { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid rgba(98,246,178,.34); border-radius: 9px; background: rgba(98,246,178,.08); color: var(--accent); font-size: 21px; }
+      .brand b { color: var(--accent); }
+      .links { display: flex; gap: 28px; color: #a6bbb3; font-size: 14px; }
+      .links a:hover { color: #fff; }
+      .nav-actions { display: flex; gap: 12px; align-items: center; }
+      .ghost-link { font-size: 13px; color: #9aafa7; }
+      .hero { position: relative; overflow: hidden; padding: 110px 0 90px; }
+      .hero:before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 70% 25%,rgba(53,230,153,.12),transparent 31%),linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px); background-size: auto,44px 44px,44px 44px; mask-image: linear-gradient(to bottom,#000,transparent 96%); }
+      .hero-grid { position: relative; display: grid; grid-template-columns: .9fr 1.22fr; gap: 64px; align-items: center; }
+      h1 { font-size: clamp(48px,5.2vw,76px); line-height: .98; letter-spacing: -.06em; margin: 20px 0 24px; }
+      h1 span, h2 span { color: #9fb4ac; font-weight: 600; }
+      .lede { font-size: 18px; line-height: 1.7; color: #a7bcb4; max-width: 620px; }
+      .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+      .proof { display: flex; gap: 16px; flex-wrap: wrap; color: #7d948b; font-size: 12px; margin-top: 20px; }
+      .preview { position: relative; }
+      .browser { border: 1px solid rgba(185,255,228,.15); border-radius: 18px; overflow: hidden; background: #0a1512; box-shadow: var(--shadow); transform: perspective(1200px) rotateY(-2deg); }
+      .browserbar { height: 44px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 10px; color: #758a82; }
+      .wdots { display: flex; gap: 5px; }
+      .wdots i { width: 7px; height: 7px; border-radius: 50%; background: #34453f; }
+      .address { justify-self: center; background: rgba(255,255,255,.03); padding: 5px 24px; border-radius: 6px; }
+      .live { color: #8ca197; }
+      .mini { padding: 18px; }
+      .mini-top { display: flex; justify-content: space-between; color: #718980; font-size: 9px; }
+      .mini h3 { font-size: 17px; margin: 24px 0 14px; }
+      .mini-kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+      .mini-kpi { padding: 11px; border: 1px solid rgba(255,255,255,.06); border-radius: 9px; background: rgba(255,255,255,.015); }
+      .mini-kpi small,.mini-kpi strong,.mini-kpi em { display: block; }
+      .mini-kpi small { font-size: 7px; color: #617b70; }
+      .mini-kpi strong { font-size: 18px; margin: 5px 0 2px; }
+      .mini-kpi em { font-style: normal; font-size: 8px; color: #67b98d; }
+      .mini-kpi.warn em { color: var(--warn); }
+      .chart { margin-top: 12px; border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: 13px; background: rgba(255,255,255,.012); }
+      .chart-head { display: flex; justify-content: space-between; font-size: 9px; color: #9db1aa; }
+      .bars { height: 120px; display: flex; gap: 7px; align-items: flex-end; margin-top: 18px; }
+      .bars i { flex: 1; border-radius: 4px 4px 2px 2px; background: linear-gradient(#62f6b2,#17372b); min-height: 20px; }
+      .floating { position: absolute; padding: 12px 13px; border: 1px solid rgba(255,255,255,.11); border-radius: 11px; background: rgba(14,28,24,.95); box-shadow: 0 18px 55px rgba(0,0,0,.35); font-size: 10px; min-width: 230px; }
+      .floating strong,.floating small { display: block; }
+      .floating small { color: #72897f; margin-top: 2px; }
+      .f1 { right: -22px; top: 36%; }
+      .f2 { left: -22px; bottom: 8%; }
+      .integrations { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 24px 0; }
+      .integration-row { display: flex; justify-content: space-between; align-items: center; gap: 28px; }
+      .integration-row>span { font-size: 10px; letter-spacing: .12em; color: #698078; text-transform: uppercase; }
+      .logos { display: flex; gap: 28px; flex-wrap: wrap; color: #95aaa2; font-weight: 750; }
+      .section { padding: 110px 0; }
+      .section-head { max-width: 760px; margin: 0 auto 48px; text-align: center; }
+      .section-head h2,.split h2 { font-size: clamp(36px,4.3vw,58px); line-height: 1.05; letter-spacing: -.05em; margin: 14px 0 16px; }
+      .section-head p,.split p { color: #899f96; }
+      .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; }
+      .card { padding: 25px; border: 1px solid var(--line); border-radius: 17px; background: linear-gradient(180deg,#0d1c18,#0a1512); }
+      .icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: rgba(98,246,178,.07); color: var(--accent); font-size: 19px; }
+      .card h3 { margin: 20px 0 8px; font-size: 18px; }
+      .card p { color: #7f968d; font-size: 13px; }
+      .demo-section { background: #0a1512; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .demo { display: grid; grid-template-columns: 210px 1fr; border: 1px solid rgba(255,255,255,.09); border-radius: 19px; overflow: hidden; background: #08120f; box-shadow: var(--shadow); }
+      .side { padding: 18px 12px; border-right: 1px solid rgba(255,255,255,.06); background: #0b1714; }
+      .side-title { font-size: 10px; color: #687f76; margin: 8px 10px 15px; }
+      .demo-nav { display: flex; flex-direction: column; gap: 5px; }
+      .demo-nav button { border: 0; background: transparent; color: #799087; text-align: left; padding: 10px 11px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+      .demo-nav button.active { background: rgba(98,246,178,.08); color: #c9f8e3; }
+      .demo-main { min-height: 530px; }
+      .demo-top { height: 52px; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; justify-content: space-between; padding: 0 18px; font-size: 10px; color: #748a81; }
+      .demo-view { display: none; padding: 20px; }
+      .demo-view.active { display: block; }
+      .view-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+      .view-title h3 { margin: 0; font-size: 18px; }
+      .view-title p { margin: 3px 0 0; color: #698078; font-size: 10px; }
+      .kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin: 18px 0; }
+      .kpi { padding: 14px; border: 1px solid rgba(255,255,255,.07); border-radius: 10px; background: #0d1b17; }
+      .kpi small,.kpi strong,.kpi em { display: block; }
+      .kpi small { font-size: 8px; color: #647c72; }
+      .kpi strong { font-size: 21px; margin: 4px 0; }
+      .kpi em { font-style: normal; font-size: 9px; color: #6dbb91; }
+      .issues { display: grid; grid-template-columns: 1.2fr .8fr; gap: 10px; }
+      .panel { border: 1px solid rgba(255,255,255,.07); border-radius: 11px; background: #0c1915; padding: 15px; }
+      .panel h4 { margin: 0 0 12px; font-size: 11px; }
+      .issue { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-top: 1px solid rgba(255,255,255,.05); }
+      .issue:first-of-type { border-top: 0; }
+      .issue b,.issue small { display: block; }
+      .issue b { font-size: 11px; }
+      .issue small { font-size: 9px; color: #6d847a; }
+      .pill { font-size: 8px; padding: 5px 7px; border-radius: 99px; background: rgba(255,201,102,.08); color: var(--warn); }
+      .pill.green { background: rgba(98,246,178,.08); color: var(--accent); }
+      .table { border: 1px solid rgba(255,255,255,.07); border-radius: 11px; overflow: hidden; }
+      .row { display: grid; grid-template-columns: .7fr 1.6fr 1fr .8fr .7fr; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,.05); font-size: 10px; }
+      .row:first-child { border-top: 0; }
+      .row.head { font-size: 8px; letter-spacing: .1em; color: #60776e; background: rgba(255,255,255,.02); }
+      .status-ok { color: var(--accent); }
+      .status-fail { color: var(--red); }
+      .contract { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .contract-card { padding: 17px; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; background: #0c1915; }
+      .contract-card h4 { margin: 0 0 6px; }
+      .contract-card p { font-size: 10px; color: #72887f; }
+      .schema { margin-top: 12px; padding: 12px; background: #07110f; border-radius: 8px; font-family: ui-monospace,SFMono-Regular,Menlo,monospace; font-size: 9px; color: #8fac9f; }
+      .replay-box { max-width: 650px; }
+      .replay-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
+      .replay-item input { accent-color: #62f6b2; }
+      .replay-item div { flex: 1; }
+      .replay-item b,.replay-item small { display: block; }
+      .replay-item b { font-size: 11px; }
+      .replay-item small { font-size: 9px; color: #698078; }
+      .result { display: none; margin-top: 12px; padding: 11px; border-radius: 9px; background: rgba(98,246,178,.08); color: #b9f4d6; font-size: 10px; }
+      .result.show { display: block; }
+      .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; }
+      .step { padding: 25px; border-top: 1px solid rgba(255,255,255,.12); }
+      .step-num { font-size: 10px; color: var(--accent); }
+      .step h3 { font-size: 18px; margin: 16px 0 7px; }
+      .step p { font-size: 13px; color: #81978e; }
+      .split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 60px; align-items: center; }
+      .check { display: flex; flex-direction: column; gap: 13px; margin-top: 24px; }
+      .check div { display: flex; gap: 10px; }
+      .check i { font-style: normal; color: var(--accent); font-weight: 800; }
+      .check b,.check small { display: block; }
+      .check small { font-size: 11px; color: #768d83; }
+      .security-card { padding: 24px; border: 1px solid rgba(255,255,255,.09); border-radius: 18px; background: #0d1c18; box-shadow: var(--shadow); }
+      .security-row { display: flex; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 11px; color: #91a69e; }
+      .security-row em { font-style: normal; color: #71887e; }
+      .security-row:first-of-type em { color: var(--accent); }
+      .pricing { max-width: 850px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+      .price { padding: 28px; border: 1px solid var(--line); border-radius: 18px; background: #0b1714; }
+      .price.featured { border-color: rgba(98,246,178,.24); background: linear-gradient(180deg,rgba(98,246,178,.06),#0b1714 45%); }
+      .badge { display: inline-block; padding: 5px 8px; border-radius: 99px; background: rgba(98,246,178,.08); color: var(--accent); font-size: 8px; font-weight: 800; letter-spacing: .1em; }
+      .price h3 { font-size: 21px; margin: 20px 0 4px; }
+      .price strong { font-size: 31px; letter-spacing: -.04em; }
+      .price p,.price li { font-size: 12px; color: #82988f; }
+      .price ul { list-style: none; padding: 0; margin: 22px 0; display: flex; flex-direction: column; gap: 9px; }
+      .pilot-wrap { padding-top: 55px; }
+      .pilot { display: grid; grid-template-columns: 1fr .9fr; gap: 60px; padding: 54px; border-radius: 23px; background: linear-gradient(135deg,#11261f,#0b1714); border: 1px solid rgba(98,246,178,.14); box-shadow: var(--shadow); }
+      .pilot h2 { font-size: clamp(36px,4vw,52px); line-height: 1.05; letter-spacing: -.05em; margin: 15px 0; }
+      .pilot-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .field { display: flex; flex-direction: column; gap: 6px; }
+      .field span { font-size: 9px; color: #80978d; }
+      .field input,.field select,.field textarea { width: 100%; border: 1px solid rgba(255,255,255,.1); background: #08130f; color: #dceae4; border-radius: 9px; padding: 11px; outline: none; }
+      .field input:focus,.field select:focus,.field textarea:focus { border-color: rgba(98,246,178,.45); box-shadow: 0 0 0 3px rgba(98,246,178,.06); }
+      .full { grid-column: 1/-1; }
+      .form-status { display: none; grid-column: 1/-1; padding: 12px; border-radius: 10px; background: rgba(98,246,178,.08); color: #c5f7df; font-size: 11px; }
+      .form-status.show { display: block; }
+      .footer { padding: 42px 0 55px; border-top: 1px solid var(--line); }
+      .footer-row { display: flex; justify-content: space-between; gap: 30px; align-items: center; color: #688078; font-size: 11px; }
+      .footer-links { display: flex; gap: 18px; }
+      .toast { position: fixed; right: 18px; bottom: 18px; z-index: 80; min-width: 260px; padding: 13px; border: 1px solid rgba(98,246,178,.16); border-radius: 11px; background: #10231d; box-shadow: 0 20px 60px rgba(0,0,0,.4); transform: translateY(120%); opacity: 0; transition: .25s ease; font-size: 10px; }
+      .toast.show { transform: none; opacity: 1; }
+      .toast b,.toast small { display: block; }
+      .toast small { color: #758b82; margin-top: 2px; }
+      @media(max-width:1020px){.hero-grid{grid-template-columns:1fr;gap:50px}.browser{transform:none}.f1{right:10px}.f2{left:10px}.split,.pilot{grid-template-columns:1fr}.demo{grid-template-columns:180px 1fr}.issues{grid-template-columns:1fr}}
+      @media(max-width:780px){.links,.ghost-link{display:none}.hero{padding-top:76px}.cards,.steps,.pricing{grid-template-columns:1fr}.integration-row{align-items:flex-start;flex-direction:column}.demo{grid-template-columns:1fr}.side{display:none}.kpis{grid-template-columns:1fr 1fr}.contract{grid-template-columns:1fr}.pilot{padding:32px}.footer-row{align-items:flex-start;flex-direction:column}.row{grid-template-columns:.7fr 1.6fr 1fr}.row span:nth-child(4),.row span:nth-child(5){display:none}.f1,.f2{display:none}}
+      @media(max-width:520px){:root{--shell:min(100% - 26px,1160px)}.hero-actions{flex-direction:column}.hero-actions .btn{width:100%}.mini-kpis{grid-template-columns:1fr 1fr}.mini-kpi:nth-child(n+3){display:none}.kpis{grid-template-columns:1fr 1fr}.pilot-form{grid-template-columns:1fr}.full{grid-column:auto}.browserbar{grid-template-columns:auto 1fr}.address{display:none}}
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="shell nav">
+        <a class="brand" href="#top"><span class="mark">∿</span><span>pulse<b>hook</b></span></a>
+        <nav class="links"><a href="#product">Product</a><a href="#workflow">How it works</a><a href="#security">Security</a><a href="#pricing">Pricing</a></nav>
+        <div class="nav-actions"><a class="ghost-link" href="#demo">View demo</a><a class="btn primary small" href="#pilot">Join private pilot</a></div>
+      </div>
+    </header>
+    <main id="top">
+      <section class="hero">
+        <div class="shell hero-grid">
+          <div>
+            <div class="eyebrow"><span class="dot"></span>Webhook reliability for modern product teams</div>
+            <h1>Know when a webhook breaks <span>before your customer does.</span></h1>
+            <p class="lede">PulseHook gives you one place to detect failed deliveries, schema drift and latency regressions across the integrations your product depends on.</p>
+            <div class="hero-actions"><a class="btn primary" href="#pilot">Start a free pilot →</a><button class="btn secondary" id="exploreDemo">▶ Explore live demo</button></div>
+            <div class="proof"><span>✓ No card required</span><span>✓ 5-minute setup</span><span>✓ Synthetic demo data</span></div>
+          </div>
+          <div class="preview">
+            <div class="browser">
+              <div class="browserbar"><span class="wdots"><i></i><i></i><i></i></span><span class="address">app.pulsehook.dev/overview</span><span class="live"><span class="dot"></span>LIVE</span></div>
+              <div class="mini">
+                <div class="mini-top"><span>PRODUCTION</span><span>All systems operational</span></div>
+                <h3>Your event pipeline is healthy.</h3>
+                <div class="mini-kpis"><div class="mini-kpi"><small>DELIVERIES / 24H</small><strong>18,492</strong><em>↑ 8.4%</em></div><div class="mini-kpi"><small>SUCCESS RATE</small><strong>99.82%</strong><em>↑ 0.2%</em></div><div class="mini-kpi warn"><small>FAILED EVENTS</small><strong>33</strong><em>12 need replay</em></div><div class="mini-kpi"><small>P95 LATENCY</small><strong>412ms</strong><em>↓ 38ms</em></div></div>
+                <div class="chart"><div class="chart-head"><span>Delivery health</span><span>Last 24 hours</span></div><div class="bars"><i style="height:35%"></i><i style="height:42%"></i><i style="height:58%"></i><i style="height:52%"></i><i style="height:67%"></i><i style="height:61%"></i><i style="height:76%"></i><i style="height:70%"></i><i style="height:84%"></i><i style="height:91%"></i></div></div>
+              </div>
+            </div>
+            <div class="floating f1"><strong>⚠ Contract drift detected</strong><small>Stripe · checkout.completed</small></div>
+            <div class="floating f2"><strong>↻ 12 events recovered</strong><small>Shopify Orders · 8s ago</small></div>
+          </div>
+        </div>
+      </section>
+      <section class="integrations"><div class="shell integration-row"><span>Built for integration-heavy stacks</span><div class="logos"><span>Stripe</span><span>Shopify</span><span>HubSpot</span><span>GitHub</span><span>Custom APIs</span></div></div></section>
+      <section class="section" id="product"><div class="shell"><div class="section-head"><div class="eyebrow">RELIABILITY SIGNALS</div><h2>Catch the failures that <span>normal uptime checks miss.</span></h2><p>PulseHook focuses on the delivery layer between your product and the services around it.</p></div><div class="cards"><article class="card"><div class="icon">×</div><h3>Failed deliveries</h3><p>See failing events, status codes and the endpoint context needed to understand what broke.</p></article><article class="card"><div class="icon">◇</div><h3>Contract drift</h3><p>Spot when observed webhook payload shape changes before downstream assumptions silently fail.</p></article><article class="card"><div class="icon">↗</div><h3>Latency regressions</h3><p>Track delivery time and identify integrations getting slower before queues and retries snowball.</p></article></div></div></section>
+      <section class="section demo-section" id="demo"><div class="shell"><div class="section-head"><div class="eyebrow">INTERACTIVE PRODUCT TOUR</div><h2>A control room for <span>webhook delivery.</span></h2><p>The public demo uses synthetic data. Explore the workflow without connecting production traffic.</p></div><div class="demo">
+        <aside class="side"><div class="brand"><span class="mark">∿</span><span>pulse<b>hook</b></span></div><div class="side-title">ACME COMMERCE · DEMO</div><div class="demo-nav"><button class="active" data-view="overview">▦ Overview</button><button data-view="events">◫ Event stream</button><button data-view="contracts">◇ Contracts</button><button data-view="replays">↻ Replays</button></div></aside>
+        <div class="demo-main"><div class="demo-top"><span>Production</span><span><span class="dot"></span>All systems operational · synthetic demo</span></div>
+          <section class="demo-view active" data-panel="overview"><div class="view-title"><div><h3>Good morning. Your event pipeline is healthy.</h3><p>Two signals need attention.</p></div><button class="btn secondary small" data-target="events">Open event stream</button></div><div class="kpis"><div class="kpi"><small>DELIVERIES / 24H</small><strong>18,492</strong><em>↑ 8.4%</em></div><div class="kpi"><small>SUCCESS RATE</small><strong>99.82%</strong><em>Target 99.5%</em></div><div class="kpi"><small>FAILED</small><strong>33</strong><em>12 need replay</em></div><div class="kpi"><small>P95</small><strong>412ms</strong><em>↓ 38ms</em></div></div><div class="issues"><div class="panel"><h4>Needs attention</h4><div class="issue"><div><b>Checkout contract drift</b><small>Stripe · 14 minutes ago</small></div><span class="pill">Review</span></div><div class="issue"><div><b>12 events need replay</b><small>Shopify Orders · 21 minutes ago</small></div><span class="pill green">Recover</span></div><div class="issue"><div><b>Latency trending up</b><small>CRM sync · 42 minutes ago</small></div><span class="pill">Watch</span></div></div><div class="panel"><h4>Endpoint pulse</h4><div class="issue"><div><b>Stripe payments</b><small>99.98% · 186ms</small></div><span class="pill green">Healthy</span></div><div class="issue"><div><b>Shopify orders</b><small>99.64% · 732ms</small></div><span class="pill">Degraded</span></div></div></div></section>
+          <section class="demo-view" data-panel="events"><div class="view-title"><div><h3>Event stream</h3><p>Inspect delivery outcomes across endpoints.</p></div></div><div class="table" style="margin-top:18px"><div class="row head"><span>STATUS</span><span>EVENT</span><span>SOURCE</span><span>LATENCY</span><span>AGE</span></div><div class="row"><span class="status-ok">● 200</span><span>payment_intent.succeeded</span><span>Stripe</span><span>186ms</span><span>12s</span></div><div class="row"><span class="status-fail">● 500</span><span>orders.updated</span><span>Shopify</span><span>1.8s</span><span>46s</span></div><div class="row"><span class="status-ok">● 202</span><span>contact.created</span><span>HubSpot</span><span>304ms</span><span>1m</span></div><div class="row"><span class="status-fail">● 422</span><span>checkout.completed</span><span>Stripe</span><span>233ms</span><span>2m</span></div></div></section>
+          <section class="demo-view" data-panel="contracts"><div class="view-title"><div><h3>Contracts</h3><p>Compare expected and observed payload shapes.</p></div></div><div class="contract" style="margin-top:18px"><div class="contract-card"><span class="pill green">Expected</span><h4>checkout.completed</h4><p>Stable contract</p><div class="schema">id: string<br>customer_id: string<br>total: number<br>currency: string</div></div><div class="contract-card"><span class="pill">Observed drift</span><h4>checkout.completed</h4><p>New field + changed type</p><div class="schema">id: string<br>customer_id: string<br>total: <span style="color:#ff827d">string</span><br>currency: string<br><span style="color:#62f6b2">discount_code?: string</span></div></div></div></section>
+          <section class="demo-view" data-panel="replays"><div class="view-title"><div><h3>Replay failed events</h3><p>Review first, then recover selected synthetic deliveries.</p></div></div><div class="panel replay-box" style="margin-top:18px"><label class="replay-item"><input type="checkbox" checked><div><b>orders.updated</b><small>Shopify · HTTP 500</small></div><span class="pill">Failed</span></label><label class="replay-item"><input type="checkbox" checked><div><b>checkout.completed</b><small>Stripe · HTTP 422</small></div><span class="pill">Failed</span></label><label class="replay-item"><input type="checkbox"><div><b>orders.updated</b><small>Shopify · timeout</small></div><span class="pill">Failed</span></label><button class="btn primary small" id="replayBtn" style="margin-top:14px">↻ Replay selected</button><div class="result" id="replayResult">✓ Selected synthetic events marked recovered in this demo.</div></div></section>
+        </div></div></div></section>
+      <section class="section" id="workflow"><div class="shell"><div class="section-head"><div class="eyebrow">HOW IT WORKS</div><h2>From noisy failures to <span>a clear recovery workflow.</span></h2></div><div class="steps"><article class="step"><span class="step-num">01</span><h3>Add an endpoint</h3><p>Name the integration and choose the operational metadata you want to retain.</p></article><article class="step"><span class="step-num">02</span><h3>Watch the signal</h3><p>Track status codes, latency and observed JSON shape in one workspace.</p></article><article class="step"><span class="step-num">03</span><h3>Recover safely</h3><p>Review the failed event context, then replay after the receiving service is healthy.</p></article></div></div></section>
+      <section class="section" id="security"><div class="shell split"><div><div class="eyebrow">SECURITY BY SCOPE</div><h2>Observe what you need. <span>Retain only what you choose.</span></h2><p>The private pilot is designed around configurable metadata capture so teams can evaluate reliability workflows without treating PulseHook as a permanent payload warehouse.</p><div class="check"><div><i>✓</i><span><b>Configurable payload capture</b><small>Start metadata-first and inspect selected fields only when needed.</small></span></div><div><i>✓</i><span><b>Clear synthetic demo mode</b><small>The public tour is isolated from pilot workspaces.</small></span></div><div><i>✓</i><span><b>Retention controls on the roadmap</b><small>Pilot feedback shapes retention and redaction defaults before GA.</small></span></div></div></div><div class="security-card"><div class="eyebrow">PAYLOAD VISIBILITY</div><h3>Metadata-first monitoring</h3><div class="security-row"><span>Operational metadata</span><em>Enabled</em></div><div class="security-row"><span>Headers</span><em>Optional</em></div><div class="security-row"><span>Body fields</span><em>Optional</em></div><div class="security-row"><span>Full raw payload</span><em>Off by default</em></div><p style="font-size:10px;color:#697f76">This describes intended pilot configuration, not a compliance certification.</p></div></div></section>
+      <section class="section" id="pricing"><div class="shell"><div class="section-head"><div class="eyebrow">PRIVATE PILOT</div><h2>Start small. Prove the workflow. <span>Then scale it.</span></h2><p>PulseHook is validating the product with a small number of integration-heavy teams.</p></div><div class="pricing"><article class="price featured"><span class="badge">CURRENT OFFER</span><h3>Private pilot</h3><strong>Free</strong><p>For teams willing to test PulseHook on one or two webhook workflows and share direct feedback.</p><ul><li>✓ Up to 2 monitored endpoints</li><li>✓ Delivery & latency monitoring</li><li>✓ Contract drift preview</li><li>✓ Replay workflow preview</li><li>✓ Direct founder support</li></ul><a class="btn primary" style="width:100%" href="#pilot">Request pilot access →</a></article><article class="price"><span class="badge" style="color:#7e948b;background:rgba(255,255,255,.04)">AFTER PILOT</span><h3>Team</h3><strong>Pricing TBD</strong><p>Planned for teams that need more endpoints, retention controls and collaborative incident workflows.</p><ul><li>Planned: multi-endpoint workspaces</li><li>Planned: alert routing</li><li>Planned: audit history</li><li>Planned: configurable retention</li><li>Planned: team roles</li></ul><a class="btn secondary" style="width:100%" href="#pilot">Join the waitlist</a></article></div></div></section>
+      <section class="section pilot-wrap" id="pilot"><div class="shell pilot"><div><div class="eyebrow">10 PILOT TEAMS</div><h2>Your next webhook incident can be a test case — <span>not a customer ticket.</span></h2><p>Tell us what you use webhooks for. We’ll prepare a pilot request you can send directly.</p></div><form class="pilot-form" id="pilotForm" novalidate><label class="field"><span>Work email</span><input id="email" type="email" placeholder="you@company.com"></label><label class="field"><span>What sends your webhooks?</span><select id="source"><option value="">Select a source</option><option>Stripe</option><option>Shopify</option><option>HubSpot</option><option>GitHub</option><option>Custom / internal service</option><option>Other</option></select></label><label class="field full"><span>What breaks most often?</span><textarea id="problem" rows="3" placeholder="Failed deliveries, changing payloads, slow endpoints…"></textarea></label><button class="btn primary full" type="submit">Prepare pilot request →</button><div class="form-status" id="formStatus"></div></form></div></section>
+    </main>
+    <footer class="footer"><div class="shell footer-row"><div class="brand"><span class="mark">∿</span><span>pulse<b>hook</b></span></div><div class="footer-links"><a href="#product">Product</a><a href="#demo">Demo</a><a href="#security">Security</a><a href="#pricing">Pilot</a><a href="mailto:ozcelikmuhammet@outlook.com.tr">Contact</a></div><span>Private pilot · 2026</span></div></footer>
+    <div class="toast" id="toast"><b>Action complete</b><small>Synthetic demo updated.</small></div>
+    <script>
+      const views=[...document.querySelectorAll('[data-view]')];
+      const panels=[...document.querySelectorAll('[data-panel]')];
+      const setView=name=>{views.forEach(b=>b.classList.toggle('active',b.dataset.view===name));panels.forEach(p=>p.classList.toggle('active',p.dataset.panel===name));};
+      views.forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+      document.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.target)));
+      document.getElementById('exploreDemo').addEventListener('click',()=>document.getElementById('demo').scrollIntoView({behavior:'smooth'}));
+      const toast=document.getElementById('toast');let timer;
+      const showToast=(title,text)=>{toast.querySelector('b').textContent=title;toast.querySelector('small').textContent=text;toast.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove('show'),3000);};
+      document.getElementById('replayBtn').addEventListener('click',()=>{const count=document.querySelectorAll('.replay-item input:checked').length;document.getElementById('replayResult').classList.add('show');document.getElementById('replayResult').textContent=`✓ ${count} synthetic event${count===1?'':'s'} marked recovered in this demo.`;showToast('Replay simulation complete',`${count} synthetic event${count===1?'':'s'} recovered.`);});
+      document.getElementById('pilotForm').addEventListener('submit',e=>{e.preventDefault();const email=document.getElementById('email').value.trim();const source=document.getElementById('source').value;const problem=document.getElementById('problem').value.trim();const status=document.getElementById('formStatus');if(!email||!email.includes('@')||!source){status.classList.add('show');status.textContent='Please enter a valid work email and choose a webhook source.';return;}const subject=encodeURIComponent('PulseHook private pilot request');const body=encodeURIComponent(`Hi Muhammet,\n\nI’d like to evaluate PulseHook for a private pilot.\n\nWork email: ${email}\nWebhook source: ${source}\nMain reliability problem: ${problem||'Not specified'}\n\nPlease send me the next steps.`);status.classList.add('show');status.innerHTML=`Pilot request ready. <a style="color:#62f6b2;text-decoration:underline" href="mailto:ozcelikmuhammet@outlook.com.tr?subject=${subject}&body=${body}">Open email to send it →</a>`;showToast('Pilot request prepared','No form data was stored on this site.');});
+    </script>
+  </body>
+</html>
